@@ -39,6 +39,7 @@ public class ReservationController {
     public void delete(@PathVariable Long id) {
         service.deleteReservation(id);
     }
+
     @ExceptionHandler(NoCarsAvailableException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleNoCars(NoCarsAvailableException ex) {
