@@ -23,4 +23,8 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     private CarType carType;
+
+    /*@ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "car_id", nullable = false)
+    private Car car;*/
 }

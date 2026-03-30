@@ -17,4 +17,9 @@ public class Car {
 
     @Enumerated(EnumType.STRING)
     private CarType type;
+
+  /*  @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+}*/
+
 }
