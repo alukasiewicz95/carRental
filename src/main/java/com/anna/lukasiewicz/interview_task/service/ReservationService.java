@@ -1,6 +1,7 @@
 package com.anna.lukasiewicz.interview_task.service;
 
 import com.anna.lukasiewicz.interview_task.dto.ReservationDto;
+import com.anna.lukasiewicz.interview_task.entity.Car;
 import com.anna.lukasiewicz.interview_task.entity.Reservation;
 import com.anna.lukasiewicz.interview_task.exception.NoCarsAvailableException;
 import com.anna.lukasiewicz.interview_task.exception.ReservationNotFoundException;
@@ -27,30 +28,31 @@ public class ReservationService {
         LocalDateTime startDate = dto.getStartDate();
         LocalDateTime endDate = dto.getEndDate();
 
-        long totalCars = carRepo.countByType(dto.getCarType());
+        List<Car> cars = carRepo.findByType(dto.getCarType());
 
-        long reservedCars = reservationRepo
-                .findByCarTypeAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                        dto.getCarType(),
-                        endDate,
-                        startDate
-                )
-                .size();
+        for (Car car : cars) {
 
-        if (reservedCars >= totalCars) {
-            throw new NoCarsAvailableException("No cars available for this period");
+            List<Reservation> conflicts = reservationRepo
+                    .findByCarAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+                            car,
+                            endDate,
+                            startDate
+                    );
+
+            if (conflicts.isEmpty()) {
+
+                Reservation reservation = new Reservation();
+                reservation.setStartDate(startDate);
+                reservation.setEndDate(endDate);
+                reservation.setCar(car);
+
+                Reservation saved = reservationRepo.save(reservation);
+
+                return mapToDto(saved);
+            }
         }
 
-        Reservation reservation = new Reservation(
-                null,
-                startDate,
-                endDate,
-                dto.getCarType()
-        );
-
-        Reservation saved = reservationRepo.save(reservation);
-
-        return mapToDto(saved);
+        throw new NoCarsAvailableException("No cars available for this period");
     }
 
     public List<ReservationDto> getAllReservations() {
@@ -78,7 +80,7 @@ public class ReservationService {
 
         return new ReservationDto(
                 reservation.getId(),
-                reservation.getCarType(),
+                reservation.getCar().getType(),
                 reservation.getStartDate(),
                 reservation.getEndDate()
         );

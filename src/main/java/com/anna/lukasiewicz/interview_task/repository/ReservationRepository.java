@@ -1,6 +1,6 @@
 package com.anna.lukasiewicz.interview_task.repository;
 
-import com.anna.lukasiewicz.interview_task.entity.CarType;
+import com.anna.lukasiewicz.interview_task.entity.Car;
 import com.anna.lukasiewicz.interview_task.entity.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    List<Reservation> findByCarTypeAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-            CarType type,
+    List<Reservation> findByCarAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            Car car,
             LocalDateTime end,
             LocalDateTime start
     );

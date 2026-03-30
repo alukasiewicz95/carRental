@@ -1,6 +1,7 @@
 package com.anna.lukasiewicz.interview_task.service;
 
 import com.anna.lukasiewicz.interview_task.dto.ReservationDto;
+import com.anna.lukasiewicz.interview_task.entity.Car;
 import com.anna.lukasiewicz.interview_task.entity.CarType;
 import com.anna.lukasiewicz.interview_task.entity.Reservation;
 import com.anna.lukasiewicz.interview_task.exception.NoCarsAvailableException;
@@ -40,17 +41,20 @@ class ReservationServiceTest {
 				LocalDateTime.now().plusDays(1)
 		);
 
-		when(carRepo.countByType(CarType.SEDAN)).thenReturn(2L);
-		when(reservationRepo.findByCarTypeAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-				any(), any(), any()
+		Car car1 = new Car();
+		car1.setId(1L);
+		car1.setType(CarType.SEDAN);
+
+		when(carRepo.findByType(CarType.SEDAN)).thenReturn(List.of(car1));
+		when(reservationRepo.findByCarAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+				eq(car1), any(), any()
 		)).thenReturn(List.of());
 
-		Reservation saved = new Reservation(
-				1L,
-				dto.getStartDate(),
-				dto.getEndDate(),
-				dto.getCarType()
-		);
+		Reservation saved = new Reservation();
+		saved.setId(1L);
+		saved.setStartDate(dto.getStartDate());
+		saved.setEndDate(dto.getEndDate());
+		saved.setCar(car1);
 
 		when(reservationRepo.save(any())).thenReturn(saved);
 
@@ -63,29 +67,36 @@ class ReservationServiceTest {
 
 	@Test
 	void shouldThrowExceptionWhenNoCarsAvailable() {
-		when(carRepo.countByType(CarType.SEDAN)).thenReturn(1L);
-		when(reservationRepo.findByCarTypeAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-				any(), any(), any()
-		)).thenReturn(List.of(new Reservation()));
-
 		ReservationDto dto = new ReservationDto(
 				null,
 				CarType.SEDAN,
 				LocalDateTime.now(),
-				LocalDateTime.now()
+				LocalDateTime.now().plusDays(1)
 		);
+
+		Car car1 = new Car();
+		car1.setId(1L);
+		car1.setType(CarType.SEDAN);
+
+		when(carRepo.findByType(CarType.SEDAN)).thenReturn(List.of(car1));
+		when(reservationRepo.findByCarAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+				eq(car1), any(), any()
+		)).thenReturn(List.of(new Reservation()));
 
 		assertThrows(NoCarsAvailableException.class, () -> service.createReservation(dto));
 	}
 
 	@Test
 	void shouldReturnAllReservations() {
-		Reservation reservation = new Reservation(
-				1L,
-				LocalDateTime.now(),
-				LocalDateTime.now().plusDays(1),
-				CarType.SEDAN
-		);
+		Car car1 = new Car();
+		car1.setId(1L);
+		car1.setType(CarType.SEDAN);
+
+		Reservation reservation = new Reservation();
+		reservation.setId(1L);
+		reservation.setStartDate(LocalDateTime.now());
+		reservation.setEndDate(LocalDateTime.now().plusDays(1));
+		reservation.setCar(car1);
 
 		when(reservationRepo.findAll()).thenReturn(List.of(reservation));
 
@@ -97,12 +108,15 @@ class ReservationServiceTest {
 
 	@Test
 	void shouldReturnReservationById() {
-		Reservation reservation = new Reservation(
-				1L,
-				LocalDateTime.now(),
-				LocalDateTime.now().plusDays(1),
-				CarType.SEDAN
-		);
+		Car car1 = new Car();
+		car1.setId(1L);
+		car1.setType(CarType.SEDAN);
+
+		Reservation reservation = new Reservation();
+		reservation.setId(1L);
+		reservation.setStartDate(LocalDateTime.now());
+		reservation.setEndDate(LocalDateTime.now().plusDays(1));
+		reservation.setCar(car1);
 
 		when(reservationRepo.findById(1L)).thenReturn(Optional.of(reservation));
 
